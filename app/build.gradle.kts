@@ -23,6 +23,8 @@ dependencies {
 
     // This dependency is used by the application.
     implementation("com.google.guava:guava:31.1-jre")
+    implementation("io.projectreactor:reactor-core:3.5.0")
+    implementation("org.apache.commons:commons-lang3:3.12.0")
 }
 
 application {
