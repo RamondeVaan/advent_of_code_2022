@@ -25,6 +25,7 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
     implementation("io.projectreactor:reactor-core:3.5.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-math3:3.6.1")
 }
 
 application {
