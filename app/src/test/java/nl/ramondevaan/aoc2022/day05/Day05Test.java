@@ -25,13 +25,13 @@ class Day05Test {
 
   @Test
   void puzzle1() {
-    assertEquals(0L, day05.solve1());
+    assertEquals("RNZLFZSJH", day05.solve1());
   }
 
   @Test
   void puzzle2() {
     //780 too low
-    assertEquals(0L, day05.solve2());
+    assertEquals("CNSFCGJSM", day05.solve2());
   }
 
 }
