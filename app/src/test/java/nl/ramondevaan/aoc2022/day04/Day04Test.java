@@ -30,7 +30,6 @@ class Day04Test {
 
   @Test
   void puzzle2() {
-    //780 too low
     assertEquals(938L, day04.solve2());
   }
 
