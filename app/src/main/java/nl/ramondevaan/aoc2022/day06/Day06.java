@@ -1,6 +1,12 @@
 package nl.ramondevaan.aoc2022.day06;
 
+import nl.ramondevaan.aoc2022.util.SlidingWindow.Window;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.Arrays;
 import java.util.List;
+
+import static nl.ramondevaan.aoc2022.util.SlidingWindow.windowStream;
 
 public class Day06 {
 
@@ -18,13 +24,11 @@ public class Day06 {
     return solve(14);
   }
 
-  public long solve(int window) {
-    for (int from = 0, to = window; to <= datastreamBuffer.length(); from++, to++) {
-      if (datastreamBuffer.substring(from, to).chars().distinct().count() == window) {
-        return to;
-      }
-    }
-
-    throw new IllegalArgumentException();
+  public long solve(int windowSize) {
+    final var chars = Arrays.asList(ArrayUtils.toObject(datastreamBuffer.toCharArray()));
+    return windowStream(chars, windowSize, new UniqueCharWindowConsumer())
+        .filter(window -> window.value() == windowSize)
+        .map(Window::endIndexExclusive)
+        .findFirst().orElseThrow();
   }
 }
