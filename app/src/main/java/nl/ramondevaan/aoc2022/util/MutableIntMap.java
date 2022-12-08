@@ -83,6 +83,10 @@ public class MutableIntMap {
         return map[coordinate.row()][coordinate.column()];
     }
 
+    public IntMapEntry withValueAt(Coordinate coordinate) {
+        return new IntMapEntry(coordinate, map[coordinate.row()][coordinate.column()]);
+    }
+
     public void setValueAt(int row, int column, int value) {
         this.map[row][column] = value;
     }

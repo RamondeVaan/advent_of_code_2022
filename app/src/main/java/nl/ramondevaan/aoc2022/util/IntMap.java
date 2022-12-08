@@ -70,6 +70,10 @@ public class IntMap {
         return map[coordinate.row()][coordinate.column()];
     }
 
+    public IntMapEntry withValueAt(Coordinate coordinate) {
+        return new IntMapEntry(coordinate, map[coordinate.row()][coordinate.column()]);
+    }
+
     public void copyInto(int row, int[] destination) {
         System.arraycopy(this.map[row], 0, destination, 0, columns);
     }
