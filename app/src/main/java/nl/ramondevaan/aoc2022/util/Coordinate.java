@@ -3,6 +3,11 @@ package nl.ramondevaan.aoc2022.util;
 import java.util.stream.Stream;
 
 public record Coordinate(int row, int column) {
+
+    public Coordinate() {
+        this(0, 0);
+    }
+
     public Stream<Coordinate> directNeighbors() {
         return Stream.of(
                 new Coordinate(row + 1, column),
