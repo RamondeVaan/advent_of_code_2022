@@ -1,14 +1,15 @@
 package nl.ramondevaan.aoc2022.day08;
 
-import com.google.common.collect.Streams;
-import nl.ramondevaan.aoc2022.util.*;
-import reactor.core.publisher.Flux;
+import nl.ramondevaan.aoc2022.util.IntMap;
+import nl.ramondevaan.aoc2022.util.IntMapParser;
+import nl.ramondevaan.aoc2022.util.MutableIntMap;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
+
+import static nl.ramondevaan.aoc2022.day08.IntMapIterators.*;
 
 
 public class Day08 {
@@ -21,61 +22,49 @@ public class Day08 {
   }
 
   public long solve1() {
-    final var minCoordinate = Coordinate.of(0, 0);
-    final var maxCoordinate = Coordinate.of(map.rows() - 1, map.columns() - 1);
-
-    final var leftToRight = coordinateStream(minCoordinate, Direction.DOWN)
-        .map(coordinate -> coordinateStream(coordinate, Direction.RIGHT));
-    final var topToBottom = coordinateStream(minCoordinate, Direction.RIGHT)
-        .map(coordinate -> coordinateStream(coordinate, Direction.DOWN));
-    final var rightToLeft = coordinateStream(maxCoordinate, Direction.UP)
-        .map(coordinate -> coordinateStream(coordinate, Direction.LEFT));
-    final var bottomToTop = coordinateStream(maxCoordinate, Direction.LEFT)
-        .map(coordinate -> coordinateStream(coordinate, Direction.UP));
-
     final var visibilityMap = new MutableIntMap(map.rows(), map.columns());
-
-    Streams.concat(leftToRight, topToBottom, rightToLeft, bottomToTop)
-        .forEach(stream -> setVisible(stream, visibilityMap));
+    IntStream.range(0, map.rows()).forEach(row -> byRow(map, row, visibilitySetter(visibilityMap)));
+    IntStream.range(0, map.rows()).forEach(row -> byRowReversed(map, row, visibilitySetter(visibilityMap)));
+    IntStream.range(0, map.columns()).forEach(column -> byColumn(map, column, visibilitySetter(visibilityMap)));
+    IntStream.range(0, map.columns()).forEach(column -> byColumnReversed(map, column, visibilitySetter(visibilityMap)));
 
     return visibilityMap.values().filter(value -> value > 0).count();
   }
 
-  private void setVisible(final Stream<Coordinate> coordinates, final MutableIntMap visibilityMap) {
-    final var max = new AtomicInteger(Integer.MIN_VALUE);
+  private IntMapEntryConsumer visibilitySetter(final MutableIntMap visibilityMap) {
+    final AtomicInteger max = new AtomicInteger(Integer.MIN_VALUE);
 
-    coordinates.map(map::withValueAt).forEachOrdered(entry -> {
-      if (entry.value() > max.getAndAccumulate(entry.value(), Math::max)) {
-        visibilityMap.setValueAt(entry.coordinate(), 1);
-      }
-    });
+    return (row, column, value) -> Optional.of(max.getAndAccumulate(value, Math::max))
+        .filter(currentMax -> value > currentMax)
+        .ifPresent(ignored -> visibilityMap.setValueAt(row, column, 1));
   }
 
   public long solve2() {
-    return map.keys().mapToLong(this::scenicScore).max().orElseThrow();
+    return IntStream.range(0, map.rows())
+        .mapToLong(row -> byRow(map, row, this::scenicScoreFun).max().orElseThrow())
+        .max()
+        .orElseThrow();
   }
 
-  private long scenicScore(final Coordinate coordinate) {
-    final var value = map.valueAt(coordinate);
-    return Flux.fromArray(Direction.values())
-        .map(direction -> coordinateStream(coordinate, direction).skip(1).mapToInt(map::valueAt))
-        .map(values -> viewDistance(values, value))
-        .takeUntil(viewDistance -> viewDistance == 0)
-        .toStream()
-        .mapToLong(Long::longValue)
-        .reduce((a, b) -> a * b)
-        .orElse(0L);
-  }
-
-  private Stream<Coordinate> coordinateStream(final Coordinate from, final Direction direction) {
-    return Stream.iterate(from, map::contains, offset(direction));
-  }
-
-  private static UnaryOperator<Coordinate> offset(final Direction direction) {
-    return from -> Coordinate.of(from.row() + direction.getRowOffset(), from.column() + direction.getColumnOffset());
+  private long scenicScoreFun(final int row, final int column, final int value) {
+    return viewDistance(valuesUp(map, row, column), value) *
+        viewDistance(valuesLeft(map, row, column), value) *
+        viewDistance(valuesDown(map, row, column), value) *
+        viewDistance(valuesRight(map, row, column), value);
   }
 
   private long viewDistance(final IntStream values, int height) {
-    return Flux.fromStream(values.boxed()).takeUntil(i -> i >= height).toStream().count();
+    var count = 0;
+
+    final var iterator = values.iterator();
+
+    while (iterator.hasNext()) {
+      count++;
+      if (iterator.nextInt() >= height) {
+        break;
+      }
+    }
+
+    return count;
   }
 }
