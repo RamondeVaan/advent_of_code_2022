@@ -4,7 +4,6 @@ import nl.ramondevaan.aoc2022.util.Parser;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.LongToIntFunction;
 import java.util.function.LongUnaryOperator;
 
 public class MonkeyParser implements Parser<List<String>, Monkey> {
