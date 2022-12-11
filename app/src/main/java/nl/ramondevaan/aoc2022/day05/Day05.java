@@ -32,13 +32,13 @@ public class Day05 {
 
   public String solve2() {
     final Crane crateMover9001 = (from, to, crates) -> Stream.generate(from::pop).limit(crates)
-        .collect(toCollection(LinkedList::new)).descendingIterator().forEachRemaining(to::push);
+        .collect(toCollection(ArrayDeque::new)).descendingIterator().forEachRemaining(to::push);
 
     return solve(crateMover9001);
   }
 
   private String solve(final Crane crane) {
-    final var stacks = this.stacks.stream().map(LinkedList::new).toList();
+    final var stacks = this.stacks.stream().map(ArrayDeque::new).toList();
 
     procedure.forEach(step -> crane.move(stacks.get(step.fromIndex()), stacks.get(step.toIndex()), step.crates()));
 
