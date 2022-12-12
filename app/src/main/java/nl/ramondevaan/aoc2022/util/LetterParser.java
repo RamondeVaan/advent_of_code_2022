@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 public class LetterParser implements Parser<URL, List<Letter>> {
 
@@ -40,18 +39,19 @@ public class LetterParser implements Parser<URL, List<Letter>> {
   }
 
   private IntMap parsePattern(final List<String> toParse) {
-    final int columns = toParse.stream().mapToInt(String::length).max().orElseThrow();
+    final var rows = toParse.size();
+    final var columns = rows == 0 ? 0 : toParse.stream().mapToInt(String::length).max().orElseThrow();
+    final var builder = IntMap.builder(rows, columns);
 
-    return new IntMap(toParse.stream().map(row -> parseRow(row, columns)));
-  }
-
-  private IntStream parseRow(final String toParse, final int columns) {
-    final int[] row = new int[columns];
-
-    for (int column = 0; column < toParse.length(); column++) {
-      row[column] = Character.isSpaceChar(toParse.charAt(column)) ? 0 : 1;
+    for (int row = 0; row < rows; row++) {
+      final char[] chars = toParse.get(row).toCharArray();
+      for (int column = 0; column < chars.length; column++) {
+        if (!Character.isSpaceChar(chars[column])) {
+          builder.set(row, column, 1);
+        }
+      }
     }
 
-    return IntStream.of(row);
+    return builder.build();
   }
 }

@@ -40,10 +40,14 @@ public class Day08 {
   }
 
   public long solve2() {
-    return IntStream.range(0, map.rows())
-        .mapToLong(row -> byRow(map, row, this::scenicScoreFun).max().orElseThrow())
-        .max()
-        .orElseThrow();
+    var max = Long.MIN_VALUE;
+
+    for (int row = 0; row < map.rows(); row++) {
+      for (int column = 0; column < map.columns(); column++) {
+        max = Math.max(max, scenicScoreFun(row, column, map.valueAt(row, column)));
+      }
+    }
+    return max;
   }
 
   private long scenicScoreFun(final int row, final int column, final int value) {

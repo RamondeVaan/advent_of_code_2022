@@ -30,6 +30,19 @@ public class IntMap {
         }
     }
 
+    private IntMap(final int[][] map) {
+        this.map = map;
+        this.rows = map.length;
+        this.columns = this.rows == 0 ? 0 : this.map[0].length;
+        this.size = this.rows * this.columns;
+        this.keys = new ArrayList<>();
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
+                this.keys.add(new Coordinate(row, column));
+            }
+        }
+    }
+
     public Stream<Coordinate> keys() {
         return keys.stream();
     }
@@ -76,5 +89,28 @@ public class IntMap {
 
     public void copyInto(int row, int[] destination) {
         System.arraycopy(this.map[row], 0, destination, 0, columns);
+    }
+
+    public static Builder builder(int rows, int columns) {
+        return new Builder(rows, columns);
+    }
+
+    public static class Builder {
+        int[][] values;
+
+        public Builder(int rows, int columns) {
+            this.values = new int[rows][columns];
+        }
+
+        public Builder set(int row, int column, int value) {
+            values[row][column] = value;
+            return this;
+        }
+
+        public IntMap build() {
+            final var ret = new IntMap(values);
+            this.values = null;
+            return ret;
+        }
     }
 }

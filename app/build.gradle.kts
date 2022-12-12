@@ -26,6 +26,7 @@ dependencies {
     implementation("io.projectreactor:reactor-core:3.5.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-math3:3.6.1")
+    implementation("it.unimi.dsi:fastutil:8.5.9")
 }
 
 application {
