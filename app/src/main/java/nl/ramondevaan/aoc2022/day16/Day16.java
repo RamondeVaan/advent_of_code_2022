@@ -34,14 +34,31 @@ public class Day16 {
   private int[][][] calculateMaxPressure(final int minutes) {
     final var queue = new ArrayDeque<State>(1_000_000);
     final var max = (1 << valves.positiveFlowRateValvesSize());
-    var scores = new int[minutes][valves.size()][max];
-    queue.add(new State(valves.startValve(), 0, 0, minutes));
+    var scores = new int[minutes][valves.positiveFlowRateValvesSize()][max];
+    final var startValve = valves.startValve();
+    if (startValve.flowRate > 0) {
+      queue.add(new State(valves.startValve(), 0, 0, minutes));
+    } else {
+      final var iterator = valves.positiveFlowRateValves();
+      while (iterator.hasNext()) {
+        final var valve = iterator.next();
+        final var timeRemaining = minutes - distanceMap.valueAt(startValve.id, valve.id) - 1;
+        if (timeRemaining >= 0) {
+          final var nextUsed = (1 << valve.id);
+          final var nextScore = valve.flowRate * timeRemaining;
+          for (int i = timeRemaining; i >= 0; i--) {
+            scores[i][valve.id][nextUsed] = Math.max(scores[i][valve.id][nextUsed], nextScore);
+          }
+          queue.add(new State(valve, nextScore, nextUsed, timeRemaining));
+        }
+      }
+    }
 
     State state;
     while ((state = queue.poll()) != null) {
       final var nextTime = state.timeRemaining - 1;
       final var id = state.position.id;
-      if (nextTime >= 0 && (state.used & (1 << id)) == 0 && state.position.flowRate > 0) {
+      if (nextTime >= 0 && (state.used & (1 << id)) == 0) {
         final var nextUsed = state.used | (1 << id);
         final var nextScore = state.pressure + state.position.flowRate * state.timeRemaining;
         for (int i = nextTime; i >= 0; i--) {
