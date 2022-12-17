@@ -107,6 +107,17 @@ public class IntMap {
             return this;
         }
 
+        public int get(final int row, final int column) {
+            return values[row][column];
+        }
+
+        public Builder fill(final int value) {
+            for (int row = 0; row < values.length; row++) {
+                Arrays.fill(values[row], value);
+            }
+            return this;
+        }
+
         public IntMap build() {
             final var ret = new IntMap(values);
             this.values = null;

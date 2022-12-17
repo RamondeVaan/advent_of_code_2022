@@ -14,23 +14,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Day16Test {
 
-    static Day16 day16;
+  static Day16 day16;
 
-    @BeforeAll
-    static void setUp() throws URISyntaxException, IOException {
-        Path path = Path.of(Objects.requireNonNull(Day16Test.class.getResource("/input/day_16.txt")).toURI());
-        List<String> lines = Files.readAllLines(path);
-        day16 = new Day16(lines);
-    }
+  @BeforeAll
+  static void setUp() throws URISyntaxException, IOException {
+    Path path = Path.of(Objects.requireNonNull(Day16Test.class.getResource("/input/day_16.txt")).toURI());
+    List<String> lines = Files.readAllLines(path);
+    day16 = new Day16(lines);
+  }
 
-    @Test
-    void puzzle1() {
-        assertEquals(0L, day16.solve1());
-    }
+  @Test
+  void puzzle1() {
+    assertEquals(1775L, day16.solve1());
+  }
 
-    @Test
-    void puzzle2() {
-        assertEquals(0L, day16.solve2());
-    }
+  @Test
+  void puzzle2() {
+    assertEquals(2351L, day16.solve());
+  }
 
 }
