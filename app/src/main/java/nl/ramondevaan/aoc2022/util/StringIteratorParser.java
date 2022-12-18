@@ -61,6 +61,17 @@ public class StringIteratorParser {
     return Integer.parseInt(builder.toString());
   }
 
+  public byte parseByte() {
+    final var builder = new StringBuilder();
+    builder.append(iterator.current());
+
+    while (iterator.next() != CharacterIterator.DONE && Character.isDigit(iterator.current())) {
+      builder.append(iterator.current());
+    }
+
+    return Byte.parseByte(builder.toString());
+  }
+
   public String parseString() {
     final var builder = new StringBuilder();
     builder.append(iterator.current());
