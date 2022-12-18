@@ -12,7 +12,6 @@ public class Day18 {
   private final int surfaceArea;
   private final IntMap3D map;
 
-
   public Day18(final List<String> lines) {
     final var parser = new PositionsParser();
     this.positions = parser.parse(lines);
