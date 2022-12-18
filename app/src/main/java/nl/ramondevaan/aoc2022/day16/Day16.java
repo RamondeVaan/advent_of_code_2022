@@ -113,7 +113,7 @@ public class Day16 {
     return distanceMap.build();
   }
 
-  public long solve() {
+  public long solve2() {
     final var max = (1 << valves.positiveFlowRateValvesSize());
     var scoreByFinalState = new int[max];
 
