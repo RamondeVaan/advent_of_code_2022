@@ -91,6 +91,10 @@ public class IntMap {
         System.arraycopy(this.map[row], 0, destination, 0, columns);
     }
 
+    public void copyInto(final int row, final int[] destination, final int offset) {
+        System.arraycopy(this.map[row], 0, destination, offset, columns);
+    }
+
     public static Builder builder(int rows, int columns) {
         return new Builder(rows, columns);
     }
@@ -112,8 +116,8 @@ public class IntMap {
         }
 
         public Builder fill(final int value) {
-            for (int row = 0; row < values.length; row++) {
-                Arrays.fill(values[row], value);
+            for (final int[] ints : values) {
+                Arrays.fill(ints, value);
             }
             return this;
         }

@@ -66,6 +66,10 @@ public class MutableIntMap {
         return row >= 0 && row < rows && column >= 0 && column < columns;
     }
 
+    public int[] row(final int row) {
+        return map[row];
+    }
+
     public int rows() {
         return rows;
     }
@@ -92,6 +96,10 @@ public class MutableIntMap {
 
     public void setValueAt(int row, int column, int value) {
         this.map[row][column] = value;
+    }
+
+    public void setValuesAt(int row, int column, int[] values) {
+        System.arraycopy(values, 0, map[row], column, values.length);
     }
 
     public void setValueAt(Coordinate coordinate, int value) {
