@@ -4,7 +4,6 @@ import java.util.List;
 
 public class Day18 {
 
-  private final static int QUEUED = -1;
   private final static int EMPTY = 0;
   private final static int LAVA = 1;
   private final static int WATER = 2;
@@ -57,12 +56,12 @@ public class Day18 {
 
     int written = 3, read = 0, count = 0;
     int x, y, z, nx, ny, nz;
+    map.set(0, 0, 0, WATER);
 
     while (read < written) {
       x = positions[read++];
       y = positions[read++];
       z = positions[read++];
-      map.set(x, y, z, WATER);
 
       for (final var direction : Direction.values()) {
         nx = x + direction.xOffset;
@@ -75,7 +74,7 @@ public class Day18 {
               positions[written++] = nx;
               positions[written++] = ny;
               positions[written++] = nz;
-              map.set(nx, ny, nz, QUEUED);
+              map.set(nx, ny, nz, WATER);
             }
             case LAVA -> count++;
           }

@@ -29,6 +29,8 @@ public class SensorParser implements Parser<String, Sensor> {
     parser.consume(Y_START);
     final var beaconY = parser.parseNumber();
 
+    parser.verifyIsDone();
+
     return new Sensor(x, y, beaconX, beaconY);
   }
 }

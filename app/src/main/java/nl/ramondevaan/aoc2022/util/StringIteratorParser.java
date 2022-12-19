@@ -11,6 +11,12 @@ public class StringIteratorParser {
     this.iterator = new StringCharacterIterator(toParse);
   }
 
+  public void verifyIsDone() {
+    if (iterator.current() != CharacterIterator.DONE) {
+      throw new IllegalArgumentException();
+    }
+  }
+
   public boolean consumeIfPresent(final char character) {
     if (iterator.current() == character) {
       iterator.next();
@@ -20,7 +26,22 @@ public class StringIteratorParser {
     return false;
   }
 
+  public char current() {
+    return iterator.current();
+  }
+
   public boolean tryConsume(final char[] chars) {
+    for (final var expected : chars) {
+      if (iterator.current() != expected) {
+        return false;
+      }
+      iterator.next();
+    }
+
+    return true;
+  }
+
+  public boolean consumeIfNotDone(final char[] chars) {
     if (iterator.current() == CharacterIterator.DONE) {
       return false;
     }

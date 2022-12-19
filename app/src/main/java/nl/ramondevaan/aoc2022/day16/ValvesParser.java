@@ -53,7 +53,7 @@ public class ValvesParser implements Parser<List<String>, Valves> {
 
     do {
       names.add(parser.parseString());
-    } while (parser.tryConsume(COMMA));
+    } while (parser.consumeIfNotDone(COMMA));
 
     return names;
   }
