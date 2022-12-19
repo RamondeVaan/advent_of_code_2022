@@ -6,7 +6,6 @@ import static nl.ramondevaan.aoc2022.day19.Material.GEODE;
 
 public class Day19 {
 
-  private final static List<Material> ROBOT_SEARCH_ORDER = List.of(GEODE, Material.OBSIDIAN, Material.CLAY, Material.ORE);
   private final List<Blueprint> blueprints;
 
   public Day19(final List<String> lines) {
@@ -47,7 +46,7 @@ public class Day19 {
       return max;
     }
 
-    for (final Material robot : ROBOT_SEARCH_ORDER) {
+    for (final Material robot : Material.values()) {
       if (state.getRobotAmount(robot) >= blueprint.maxRobotAmount(robot)) {
         continue;
       }
