@@ -42,7 +42,7 @@ public class Day19 {
     var geodesIfNothingBuilt = state.getMaterialAmount(GEODE) + state.getRobotAmount(GEODE) * minutes;
     max = Math.max(geodesIfNothingBuilt, max);
 
-    if ((minutes * minutes - minutes) / 2 + geodesIfNothingBuilt < max) {
+    if (minutes <= 1 || (minutes * minutes - minutes) / 2 + geodesIfNothingBuilt < max) {
       return max;
     }
 
