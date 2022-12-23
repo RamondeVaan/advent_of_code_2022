@@ -91,8 +91,66 @@ public class IntMap {
         System.arraycopy(this.map[row], 0, destination, 0, columns);
     }
 
-    public void copyInto(final int row, final int[] destination, final int offset) {
-        System.arraycopy(this.map[row], 0, destination, offset, columns);
+    public void copyInto(final int row, final int[] destination, final int sourceOffset, final int length) {
+        System.arraycopy(this.map[row], sourceOffset, destination, 0, length);
+    }
+
+    public void copyInto(final int row, final int[] destination, final int sourceOffset, int destinationOffset, final int length) {
+        System.arraycopy(this.map[row], sourceOffset, destination, destinationOffset, length);
+    }
+
+    public IntMap part(final int row, final int column, final int rows, final int columns) {
+        final var builder = IntMap.builder(rows, columns);
+        builder.copyFrom(this, row, 0, column, 0, rows, columns);
+        return builder.build();
+    }
+
+    public IntMap rotateClockwise() {
+        final var newMap = new int[columns][rows];
+
+        for (int oldRow = 0, newColumn = rows - 1; oldRow < rows; oldRow++, newColumn--) {
+            for (int oldColumn = 0, newRow = 0; oldColumn < columns; oldColumn++, newRow++) {
+                newMap[newRow][newColumn] = map[oldRow][oldColumn];
+            }
+        }
+
+        return new IntMap(newMap);
+    }
+
+    public IntMap rotateCounterClockwise() {
+        final var newMap = new int[columns][rows];
+
+        for (int oldRow = 0, newColumn = 0; oldRow < rows; oldRow++, newColumn++) {
+            for (int oldColumn = 0, newRow = columns - 1; oldColumn < columns; oldColumn++, newRow--) {
+                newMap[newRow][newColumn] = map[oldRow][oldColumn];
+            }
+        }
+
+        return new IntMap(newMap);
+    }
+
+    public IntMap rotateTwice() {
+        final var newMap = new int[rows][columns];
+
+        for (int oldRow = 0, newRow = rows - 1; oldRow < rows; oldRow++, newRow--) {
+            for (int oldColumn = 0, newColumn = columns - 1; oldColumn < columns; oldColumn++, newColumn--) {
+                newMap[newRow][newColumn] = map[oldRow][oldColumn];
+            }
+        }
+
+        return new IntMap(newMap);
+    }
+
+    public IntMap rotate(final int rotations) {
+        final var clockwiseRotations = Math.floorMod(rotations, 4);
+
+        return switch (clockwiseRotations) {
+            case 0 -> this;
+            case 1 -> rotateClockwise();
+            case 2 -> rotateTwice();
+            case 3 -> rotateCounterClockwise();
+            default -> throw new IllegalStateException();
+        };
     }
 
     public static Builder builder(int rows, int columns) {
@@ -118,6 +176,16 @@ public class IntMap {
         public Builder fill(final int value) {
             for (final int[] ints : values) {
                 Arrays.fill(ints, value);
+            }
+            return this;
+        }
+
+        public Builder copyFrom(final IntMap map, final int sourceRowOffset, final int rowOffset,
+                                final int sourceColumnOffset, final int columnOffset, final int rows, final int columns) {
+            final int targetRow = rowOffset + rows;
+
+            for (int row = rowOffset, sourceRow = sourceRowOffset; row < targetRow; row++, sourceRow++) {
+                map.copyInto(sourceRow, values[row], sourceColumnOffset, columnOffset, columns);
             }
             return this;
         }

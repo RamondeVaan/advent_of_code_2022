@@ -34,7 +34,7 @@ public class ValvesParser implements Parser<List<String>, Valves> {
     parser.consume(VALVE);
     final var name = parser.parseString();
     parser.consume(FLOW_RATE);
-    final var flowRate = parser.parseNumber();
+    final var flowRate = parser.parseInteger();
     parser.consume(TUNNEL);
     if (parser.consumeIfPresent('s')) {
       parser.consume(LEAD);

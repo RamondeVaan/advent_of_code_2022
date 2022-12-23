@@ -20,9 +20,9 @@ public class PathParser implements Parser<String, Path> {
   }
 
   private void parsePoint(final Path.Builder builder, final StringIteratorParser parser) {
-    final int column = parser.parseNumber();
+    final int column = parser.parseInteger();
     parser.consume(',');
-    final int row = parser.parseNumber();
+    final int row = parser.parseInteger();
 
     builder.addPoint(row, column);
   }

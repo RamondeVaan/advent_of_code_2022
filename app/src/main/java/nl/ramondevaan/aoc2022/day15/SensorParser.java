@@ -17,17 +17,17 @@ public class SensorParser implements Parser<String, Sensor> {
     final var parser = new StringIteratorParser(toParse);
     parser.consume(SENSOR_START);
     parser.consume(X_START);
-    final var x = parser.parseNumber();
+    final var x = parser.parseInteger();
     parser.consume(COMMA);
     parser.consume(Y_START);
-    final var y = parser.parseNumber();
+    final var y = parser.parseInteger();
     parser.consume(CLOSEST);
     parser.consume(BEACON_START);
     parser.consume(X_START);
-    final var beaconX = parser.parseNumber();
+    final var beaconX = parser.parseInteger();
     parser.consume(COMMA);
     parser.consume(Y_START);
-    final var beaconY = parser.parseNumber();
+    final var beaconY = parser.parseInteger();
 
     parser.verifyIsDone();
 

@@ -11,6 +11,10 @@ public class StringIteratorParser {
     this.iterator = new StringCharacterIterator(toParse);
   }
 
+  public boolean hasNext() {
+    return iterator.current() != CharacterIterator.DONE;
+  }
+
   public void verifyIsDone() {
     if (iterator.current() != CharacterIterator.DONE) {
       throw new IllegalArgumentException();
@@ -55,6 +59,10 @@ public class StringIteratorParser {
     return true;
   }
 
+  public void consume() {
+    iterator.next();
+  }
+
   public void consume(final char character) {
     if (iterator.current() != character) {
       throw new IllegalArgumentException(String.format("Unexpected token: %s", iterator.current()));
@@ -71,7 +79,15 @@ public class StringIteratorParser {
     }
   }
 
-  public int parseNumber() {
+  public int parseInteger() {
+    return Integer.parseInt(parseNumber());
+  }
+
+  public long parseLong() {
+    return Long.parseLong(parseNumber());
+  }
+
+  private String parseNumber() {
     final var builder = new StringBuilder();
     builder.append(iterator.current());
 
@@ -79,7 +95,7 @@ public class StringIteratorParser {
       builder.append(iterator.current());
     }
 
-    return Integer.parseInt(builder.toString());
+    return builder.toString();
   }
 
   public byte parseByte() {

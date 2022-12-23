@@ -25,7 +25,7 @@ public class BlueprintParser implements Parser<String, Blueprint> {
     final var parser = new StringIteratorParser(toParse);
 
     parser.consume(BLUEPRINT);
-    builder.setId(parser.parseNumber());
+    builder.setId(parser.parseInteger());
     parser.consume(ORE_ROBOT);
     parseCost(Material.ORE, builder, parser);
     parser.consume(CLAY_ROBOT);
@@ -42,7 +42,7 @@ public class BlueprintParser implements Parser<String, Blueprint> {
 
   private void parseCost(final Material robot, final Blueprint.Builder builder, final StringIteratorParser parser) {
     do {
-      final var number = parser.parseNumber();
+      final var number = parser.parseInteger();
       parser.consume(' ');
       switch (parser.current()) {
         case 'o' -> setObsidianOrOre(robot, builder, number, parser);
