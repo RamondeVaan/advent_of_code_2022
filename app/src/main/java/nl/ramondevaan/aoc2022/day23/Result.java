@@ -7,5 +7,5 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class Result {
   public final int moved;
-  public final Set<Coordinate> positions;
+  public final Set<Integer> positions;
 }

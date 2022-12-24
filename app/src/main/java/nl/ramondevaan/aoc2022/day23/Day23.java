@@ -21,7 +21,7 @@ public class Day23 {
       })
       .toList();
 
-  private final Set<Coordinate> coordinates;
+  private final Set<Integer> coordinates;
 
   public Day23(final List<String> lines) {
     final var parser = new CoordinateParser();
@@ -53,8 +53,8 @@ public class Day23 {
     }
   }
 
-  private Result next(final Set<Coordinate> positions, final List<Consideration> considerations) {
-    final var proposals = new HashSet<Coordinate>(coordinates.size());
+  private Result next(final Set<Integer> positions, final List<Consideration> considerations) {
+    final var proposals = new HashSet<Integer>(coordinates.size());
     var moved = 0;
 
     coordinate:
@@ -63,13 +63,13 @@ public class Day23 {
         consideration:
         for (final var consideration : considerations) {
           for (final var direction : consideration.checkDirections) {
-            if (positions.contains(coordinate.neighbor(direction))) {
+            if (positions.contains(coordinate + direction.offset)) {
               continue consideration;
             }
           }
-          final var proposal = coordinate.neighbor(consideration.proposal);
+          final var proposal = coordinate + consideration.proposal.offset;
           if (proposals.remove(proposal)) {
-            proposals.add(proposal.neighbor(consideration.proposal));
+            proposals.add(proposal + consideration.proposal.offset);
             proposals.add(coordinate);
             moved--;
           } else {
@@ -85,9 +85,9 @@ public class Day23 {
     return new Result(moved, Collections.unmodifiableSet(proposals));
   }
 
-  private boolean hasNeighbors(final Set<Coordinate> positions, final Coordinate coordinate) {
+  private boolean hasNeighbors(final Set<Integer> positions, final Integer coordinate) {
     for (final Direction value : Direction.values()) {
-      if (positions.contains(coordinate.neighbor(value))) {
+      if (positions.contains(coordinate + value.offset)) {
         return true;
       }
     }
@@ -95,17 +95,20 @@ public class Day23 {
     return false;
   }
 
-  private long emptyTiles(final Set<Coordinate> positions) {
+  private long emptyTiles(final Set<Integer> positions) {
     var rowMin = Integer.MAX_VALUE;
     var rowMax = Integer.MIN_VALUE;
     var columnMin = Integer.MAX_VALUE;
     var columnMax = Integer.MIN_VALUE;
 
     for (final var position : positions) {
-      rowMin = Math.min(position.row, rowMin);
-      rowMax = Math.max(position.row, rowMax);
-      columnMin = Math.min(position.column, columnMin);
-      columnMax = Math.max(position.column, columnMax);
+      final int row = position / 2000;
+      final int column = position % 2000;
+
+      rowMin = Math.min(row, rowMin);
+      rowMax = Math.max(row, rowMax);
+      columnMin = Math.min(column, columnMin);
+      columnMax = Math.max(column, columnMax);
     }
 
     final long size = (long) (rowMax - rowMin + 1) * (columnMax - columnMin + 1);
