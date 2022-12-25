@@ -153,19 +153,38 @@ public class IntMap {
         };
     }
 
+    public Builder toBuilder() {
+        final var builder = new Builder(rows, columns);
+
+        for (int row = 0; row < rows; row++) {
+            copyInto(row, builder.values[row]);
+        }
+
+        return builder;
+    }
+
     public static Builder builder(int rows, int columns) {
         return new Builder(rows, columns);
     }
 
     public static class Builder {
+        public final int rows;
+        public final int columns;
         int[][] values;
 
         public Builder(int rows, int columns) {
             this.values = new int[rows][columns];
+            this.rows = rows;
+            this.columns = columns;
         }
 
         public Builder set(int row, int column, int value) {
             values[row][column] = value;
+            return this;
+        }
+
+        public Builder flag(int row, int column, int value) {
+            values[row][column] |= value;
             return this;
         }
 
