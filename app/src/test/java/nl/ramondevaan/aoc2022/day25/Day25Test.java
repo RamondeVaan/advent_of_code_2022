@@ -25,12 +25,7 @@ class Day25Test {
 
   @Test
   void puzzle1() {
-    assertEquals(0L, day25.solve1());
-  }
-
-  @Test
-  void puzzle2() {
-    assertEquals(0L, day25.solve2());
+    assertEquals("20-1-11==0-=0112-222", day25.solve1());
   }
 
 }
