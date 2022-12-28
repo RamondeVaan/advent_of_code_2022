@@ -38,7 +38,6 @@ public class Day23 {
   private Result solve(final int rounds) {
     var positions = coordinates.stream().mapToInt(Integer::intValue).toArray();
     var considerations = considerations();
-    var considerationSize = considerations.length / 2;
     var newPositions = new int[positions.length];
     var set = initializePositions();
     var proposals = new int[set.length];
@@ -48,33 +47,42 @@ public class Day23 {
     for (; round < rounds && moved != 0; round++) {
       moved = 0;
 
-      coordinate:
       for (int i = 0; i < positions.length; i++) {
         final var coordinate = positions[i];
         final int[] neighbors = neighbors(coordinate);
-        if (hasNeighbors(set, neighbors)) {
-          final var roundModConsiderations = round % considerationSize;
-          final var considerationTarget = roundModConsiderations + considerationSize;
-          consideration:
-          for (var considerationIndex = roundModConsiderations; considerationIndex < considerationTarget; considerationIndex++) {
-            final var consideration = considerations[considerationIndex];
-            for (final var neighborIndex : consideration) {
-              if (set[neighbors[neighborIndex]]) {
-                continue consideration;
-              }
-            }
-            final var proposal = neighbors[consideration[0]];
-            moved += handleProposal(positions, newPositions, proposals, i, coordinate, proposal) ? 1 : -1;
-            continue coordinate;
-          }
-        }
         newPositions[i] = coordinate;
+        if (!hasNeighbors(set, neighbors)) {
+          continue;
+        }
+        int[] finalConsideration = getConsideration(considerations, set, round, neighbors);
+        if (finalConsideration != null) {
+          final var proposal = neighbors[finalConsideration[0]];
+          moved += handleProposal(positions, newPositions, proposals, i, coordinate, proposal) ? 1 : -1;
+        }
       }
 
       finishRound(positions, newPositions, set, proposals);
     }
 
     return new Result(round, Ints.asList(positions));
+  }
+
+  private static int[] getConsideration(final int[][] considerations, final boolean[] set, final int round,
+                                        final int[] neighbors) {
+    final var considerationSize = (considerations.length / 2);
+    final var roundModConsiderations = round % considerationSize;
+    final var considerationTarget = roundModConsiderations + considerationSize;
+    consideration:
+    for (var considerationIndex = roundModConsiderations; considerationIndex < considerationTarget; considerationIndex++) {
+      final var consideration = considerations[considerationIndex];
+      for (final var neighborIndex : consideration) {
+        if (set[neighbors[neighborIndex]]) {
+          continue consideration;
+        }
+      }
+      return consideration;
+    }
+    return null;
   }
 
   private static void finishRound(final int[] positions, final int[] newPositions, final boolean[] set, final int[] proposals) {
