@@ -38,6 +38,7 @@ public class Day24 {
 
   private Result solve(final IntMap.Builder map, final int startRow, final int startColumn,
                        final int targetRow, final int targetColumn) {
+    final var moves = Move.values();
     var currentMap = map.set(startRow, startColumn, PLAYER).build();
 
     for (int round = 0; true; round++) {
@@ -49,7 +50,7 @@ public class Day24 {
       for (int row = 0; row < map.rows; row++) {
         for (int column = 0; column < map.columns; column++) {
           if (currentMap.valueAt(row, column) == PLAYER) {
-            for (final var move : Move.values()) {
+            for (final var move : moves) {
               final var nextRow = row + move.rowOffset;
               final var nextColumn = column + move.columnOffset;
               if (0 <= nextRow && nextRow < builder.rows && 0 <= nextColumn && nextColumn < builder.columns &&

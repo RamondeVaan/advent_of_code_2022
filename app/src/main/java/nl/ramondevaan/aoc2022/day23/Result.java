@@ -2,10 +2,10 @@ package nl.ramondevaan.aoc2022.day23;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class Result {
-  public final int moved;
-  public final Set<Integer> positions;
+  public final int rounds;
+  public final List<Integer> positions;
 }

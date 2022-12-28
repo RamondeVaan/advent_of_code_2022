@@ -1,25 +1,14 @@
 package nl.ramondevaan.aoc2022.day23;
 
-import nl.ramondevaan.aoc2022.util.Cycle;
+import com.google.common.primitives.Ints;
 
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.List;
+import java.util.Set;
+
+import static nl.ramondevaan.aoc2022.day23.Coordinate.OFFSET;
+import static nl.ramondevaan.aoc2022.day23.Coordinate.ROW_MULTIPLIER;
 
 public class Day23 {
-
-  private static final List<Consideration> CONSIDERATIONS = List.of(
-      new Consideration(Direction.NORTH, Set.of(Direction.NORTH, Direction.NORTH_WEST, Direction.NORTH_EAST)),
-      new Consideration(Direction.SOUTH, Set.of(Direction.SOUTH, Direction.SOUTH_WEST, Direction.SOUTH_EAST)),
-      new Consideration(Direction.WEST, Set.of(Direction.WEST, Direction.NORTH_WEST, Direction.SOUTH_WEST)),
-      new Consideration(Direction.EAST, Set.of(Direction.EAST, Direction.NORTH_EAST, Direction.SOUTH_EAST))
-  );
-  private static final List<List<Consideration>> CONSIDERATION_ROTATIONS = IntStream.range(0, CONSIDERATIONS.size())
-      .mapToObj(i -> {
-        final var list = new ArrayList<>(CONSIDERATIONS);
-        Collections.rotate(list, -i);
-        return Collections.unmodifiableList(list);
-      })
-      .toList();
 
   private final Set<Integer> coordinates;
 
@@ -29,65 +18,91 @@ public class Day23 {
   }
 
   public long solve1() {
-    final int rounds = 10;
-    final var considerationCycle = new Cycle<>(CONSIDERATION_ROTATIONS);
-    var positions = Set.copyOf(coordinates);
-
-    for (int round = 0; round < rounds; round++) {
-      positions = next(positions, considerationCycle.next()).positions;
-    }
-
-    return emptyTiles(positions);
+    return emptyTiles(solve(10).positions);
   }
 
   public long solve2() {
-    final var considerationCycle = new Cycle<>(CONSIDERATION_ROTATIONS);
-    var positions = Set.copyOf(coordinates);
-
-    for (int round = 1; true; round++) {
-      final var result = next(positions, considerationCycle.next());
-      if (result.moved == 0) {
-        return round;
-      }
-      positions = result.positions;
-    }
+    return solve(Integer.MAX_VALUE).rounds;
   }
 
-  private Result next(final Set<Integer> positions, final List<Consideration> considerations) {
-    final var proposals = new HashSet<Integer>(coordinates.size());
-    var moved = 0;
+  private boolean[] initializePositions() {
+    final var ret = new boolean[ROW_MULTIPLIER * ROW_MULTIPLIER + OFFSET];
 
-    coordinate:
-    for (final var coordinate : positions) {
-      if (hasNeighbors(positions, coordinate)) {
-        consideration:
-        for (final var consideration : considerations) {
-          for (final var direction : consideration.checkDirections) {
-            if (positions.contains(coordinate + direction.offset)) {
-              continue consideration;
+    for (final var position : coordinates) {
+      ret[position] = true;
+    }
+
+    return ret;
+  }
+
+  private Result solve(final int rounds) {
+    var positions = coordinates.stream().mapToInt(Integer::intValue).toArray();
+    var considerations = considerations();
+    var considerationSize = considerations.length / 2;
+    var newPositions = new int[positions.length];
+    var set = initializePositions();
+    var proposals = new int[set.length];
+    int round = 0;
+    int moved = 1;
+
+    for (; round < rounds && moved != 0; round++) {
+      moved = 0;
+
+      coordinate:
+      for (int i = 0; i < positions.length; i++) {
+        final var coordinate = positions[i];
+        final int[] neighbors = neighbors(coordinate);
+        if (hasNeighbors(set, neighbors)) {
+          final var roundModConsiderations = round % considerationSize;
+          final var considerationTarget = roundModConsiderations + considerationSize;
+          consideration:
+          for (var considerationIndex = roundModConsiderations; considerationIndex < considerationTarget; considerationIndex++) {
+            final var consideration = considerations[considerationIndex];
+            for (final var neighborIndex : consideration) {
+              if (set[neighbors[neighborIndex]]) {
+                continue consideration;
+              }
             }
+            final var proposal = neighbors[consideration[0]];
+            moved += handleProposal(positions, newPositions, proposals, i, coordinate, proposal) ? 1 : -1;
+            continue coordinate;
           }
-          final var proposal = coordinate + consideration.proposal.offset;
-          if (proposals.remove(proposal)) {
-            proposals.add(proposal + consideration.proposal.offset);
-            proposals.add(coordinate);
-            moved--;
-          } else {
-            proposals.add(proposal);
-            moved++;
-          }
-          continue coordinate;
         }
+        newPositions[i] = coordinate;
       }
-      proposals.add(coordinate);
+
+      finishRound(positions, newPositions, set, proposals);
     }
 
-    return new Result(moved, Collections.unmodifiableSet(proposals));
+    return new Result(round, Ints.asList(positions));
   }
 
-  private boolean hasNeighbors(final Set<Integer> positions, final Integer coordinate) {
-    for (final Direction value : Direction.values()) {
-      if (positions.contains(coordinate + value.offset)) {
+  private static void finishRound(final int[] positions, final int[] newPositions, final boolean[] set, final int[] proposals) {
+    for (int i = 0; i < positions.length; i++) {
+      set[positions[i]] = false;
+      set[positions[i] = newPositions[i]] = true;
+      proposals[newPositions[i]] = 0;
+    }
+  }
+
+  private static boolean handleProposal(final int[] positions, final int[] newPositions, final int[] proposals,
+                                        final int i, final int coordinate, final int proposal) {
+    int index;
+    if ((index = proposals[proposal]) != 0) {
+      index -= 1;
+      newPositions[index] = positions[index];
+      newPositions[i] = coordinate;
+      proposals[proposal] = 0;
+      return false;
+    }
+    newPositions[i] = proposal;
+    proposals[proposal] = i + 1;
+    return  true;
+  }
+
+  private boolean hasNeighbors(final boolean[] positions, final int[] neighbors) {
+    for (final var neighbor : neighbors) {
+      if (positions[neighbor]) {
         return true;
       }
     }
@@ -95,15 +110,44 @@ public class Day23 {
     return false;
   }
 
-  private long emptyTiles(final Set<Integer> positions) {
+  private int[] neighbors(final int coordinate) {
+    final var minMultiplier = coordinate - ROW_MULTIPLIER;
+    final var plusMultiplier = coordinate + ROW_MULTIPLIER;
+
+    return new int[] {
+        minMultiplier - 1, // North-West
+        minMultiplier, // North
+        minMultiplier + 1, // North-East
+        coordinate + 1, // East
+        plusMultiplier + 1, // South-East
+        plusMultiplier, // South
+        plusMultiplier - 1, // South-West
+        coordinate - 1, // West
+    };
+  }
+
+  private int[][] considerations() {
+    return new int[][] {
+        {1, 0, 2}, // North
+        {5, 4, 6}, // South
+        {7, 6, 0}, // West
+        {3, 2, 4}, // East
+        {1, 0, 2}, // North
+        {5, 4, 6}, // South
+        {7, 6, 0}, // West
+        {3, 2, 4}, // East
+    };
+  }
+
+  private long emptyTiles(final List<Integer> positions) {
     var rowMin = Integer.MAX_VALUE;
     var rowMax = Integer.MIN_VALUE;
     var columnMin = Integer.MAX_VALUE;
     var columnMax = Integer.MIN_VALUE;
 
-    for (final var position : positions) {
-      final int row = position / 2000;
-      final int column = position % 2000;
+    for (final int position : positions) {
+      final int row = position / ROW_MULTIPLIER;
+      final int column = position % ROW_MULTIPLIER;
 
       rowMin = Math.min(row, rowMin);
       rowMax = Math.max(row, rowMax);
@@ -112,6 +156,6 @@ public class Day23 {
     }
 
     final long size = (long) (rowMax - rowMin + 1) * (columnMax - columnMin + 1);
-    return size - positions.size();
+    return size - coordinates.size();
   }
 }

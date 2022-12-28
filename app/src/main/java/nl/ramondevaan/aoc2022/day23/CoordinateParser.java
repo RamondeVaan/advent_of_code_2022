@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static nl.ramondevaan.aoc2022.day23.Coordinate.OFFSET;
+import static nl.ramondevaan.aoc2022.day23.Coordinate.ROW_MULTIPLIER;
+
 public class CoordinateParser implements Parser<List<String>, Set<Integer>> {
   @Override
   public Set<Integer> parse(final List<String> toParse) {
@@ -18,7 +21,7 @@ public class CoordinateParser implements Parser<List<String>, Set<Integer>> {
       final var chars = toParse.get(row).toCharArray();
       for (int column = 0; column < chars.length; column++) {
         switch (chars[column]) {
-          case '#' -> set.add(((row + 1000) * 2000) + column + 1000);
+          case '#' -> set.add(((row + OFFSET) * ROW_MULTIPLIER) + column + OFFSET);
           case '.' -> {}
           default -> throw new IllegalArgumentException();
         }
